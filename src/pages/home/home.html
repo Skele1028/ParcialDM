@@ -35,5 +35,28 @@
   <div align="center">
     <button ion-button color="default">Start</button>
     <button ion-button color="dark">Stop</button>
-  </div> 
+  </div>
+  <!----->
+  <div align="center">
+    <ion-list padding>
+      <button ion-button block (click)="starScanning()">Buscar</button>
+      <ion-list-header>
+        Dispositivos emparejados
+      </ion-list-header>
+      <ion-item *ngFor="let device of pairedDevices">
+        {{device.name}}
+      </ion-item>
+      <button ion-button block (click)="disconnect()">Desconectar</button>
+      <ion-list-header>
+        Dispositivos Disponibles
+      </ion-list-header>
+      <ion-item *ngFor='let device of unpairedDevices'>
+        <span (click)="selectDevice(device.address)">
+          {{device.name}}
+        </span>
+      </ion-item>
+      <ion-spinner name="crescent" *ngIf="gettingDevices"></ion-spinner>
+    </ion-list>
+   </div>
 </ion-content>
+
