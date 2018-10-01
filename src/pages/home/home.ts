@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { NavController, Button } from 'ionic-angular';
 import { BluetoothSerial } from '@ionic-native/bluetooth-serial';
 import { AlertController } from 'ionic-angular';
+import { ClassStmt } from '@angular/compiler';
 
 @Component({
   selector: 'page-home',
@@ -9,7 +10,23 @@ import { AlertController } from 'ionic-angular';
 })
 
 export class HomePage {
-  
+  //colores iniciales
+  clase00 = 'light';
+  clase10 = 'light';
+  clase20 = 'light';
+  clase30 = 'light';
+  clase40 = 'light';
+  clase01 = 'light';
+  clase11 = 'light';
+  clase21 = 'light';
+  clase31 = 'light';
+  clase41 = 'light';
+  clase02 = 'light';
+  clase12 = 'light';
+  clase22 = 'light';
+  clase32 = 'light';
+  clase42 = 'light';
+
   cordenada = '';
   unpairedDevices: any;
   pairedDevices: any;
@@ -59,7 +76,7 @@ export class HomePage {
           }
         },
         {
-          text: 'Connectado',
+          text: 'Connectar',
           handler: () => {
             this.bluetoothSerial.connect(address).subscribe(this.success, this.fail);
           }
@@ -82,7 +99,7 @@ export class HomePage {
           }
         },
         {
-          text: 'Desconectado',
+          text: 'Desconectar',
           handler: () => {
             this.bluetoothSerial.disconnect();
           }
@@ -93,8 +110,60 @@ export class HomePage {
   }
 
   btCoordenada($valor) {
-    this.bluetoothSerial.write('00');
-    console.log($valor); 
+    this.bluetoothSerial.write($valor);
+    console.log($valor);
+
+    switch ($valor) {
+      case '00':
+        this.clase00 = 'secondary';
+        break;
+      case '10':
+        this.clase10 = 'secondary';
+        break;
+      case '20':
+        this.clase20 = 'secondary';
+        break;
+      case '30':
+        this.clase30 = 'secondary';
+        break;
+      case '40':
+        this.clase40 = 'secondary';
+        break;
+      case '01':
+        this.clase01 = 'secondary';
+        break;
+      case '11':
+        this.clase11 = 'secondary';
+        break;
+      case '21':
+        this.clase21 = 'secondary';
+        break;
+      case '31':
+        this.clase31 = 'secondary';
+        break;
+      case '41':
+        this.clase41 = 'secondary';
+        break;
+      case '02':
+        this.clase02 = 'secondary';
+        break;
+      case '12':
+        this.clase12 = 'secondary';
+        break;
+      case '22':
+        this.clase22 = 'secondary';
+        break;
+      case '32':
+        this.clase32 = 'secondary';
+        break;
+      case '42':
+        this.clase42 = 'secondary';
+        break;
+    }
+
+
+
+   
   }
 
 }
