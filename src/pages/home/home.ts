@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController } from 'ionic-angular';
+import { NavController, Button } from 'ionic-angular';
 import { BluetoothSerial } from '@ionic-native/bluetooth-serial';
 import { AlertController } from 'ionic-angular';
 
@@ -9,7 +9,8 @@ import { AlertController } from 'ionic-angular';
 })
 
 export class HomePage {
-
+  
+  cordenada = '';
   unpairedDevices: any;
   pairedDevices: any;
   gettingDevices: Boolean;
@@ -47,18 +48,18 @@ export class HomePage {
   selectDevice(address: any) {
 
     let alert = this.alertCtrl.create({
-      title: 'Connect',
-      message: 'Do you want to connect with?',
+      title: 'Connectar',
+      message: 'Quiere conectarse con?',
       buttons: [
         {
-          text: 'Cancel',
-          role: 'cancel',
+          text: 'Cancelar',
+          role: 'cancelar',
           handler: () => {
             console.log('Cancel clicked');
           }
         },
         {
-          text: 'Connect',
+          text: 'Connectado',
           handler: () => {
             this.bluetoothSerial.connect(address).subscribe(this.success, this.fail);
           }
@@ -70,18 +71,18 @@ export class HomePage {
 
   disconnect() {
     let alert = this.alertCtrl.create({
-      title: 'Disconnect?',
-      message: 'Do you want to Disconnect?',
+      title: 'Desconectar?',
+      message: 'Quiere desconectarse?',
       buttons: [
         {
-          text: 'Cancel',
-          role: 'cancel',
+          text: 'Cancelar',
+          role: 'cancelar',
           handler: () => {
             console.log('Cancel clicked');
           }
         },
         {
-          text: 'Disconnect',
+          text: 'Desconectado',
           handler: () => {
             this.bluetoothSerial.disconnect();
           }
@@ -90,4 +91,14 @@ export class HomePage {
     });
     alert.present();
   }
+
+  btCeroCero() {
+    this.bluetoothSerial.write('00');
+    console.log('00'); 
+  }
+
+  btUnoCero() {
+    this.bluetoothSerial.write('10');
+    console.log('10');
+  }   
 }

@@ -9,8 +9,8 @@
 <ion-content padding>
   <div align="center">
     <div>
-      <button ion-button small color="light">0,0</button>
-      <button ion-button small color="light">1,0</button>
+      <button ion-button (click)="btCeroCero()" small color="light" >0,0</button>
+      <button ion-button (click)="btUnoCero()"small color="light">1,0</button>
       <button ion-button small color="light">2,0</button>
       <button ion-button small color="light">3,0</button>
       <button ion-button small color="light">4,0</button>
@@ -36,6 +36,9 @@
     <br>
   </div>
   <div align="center">
+    <button ion-button color="danger">Calibrar</button>
+    <br>
+    <br>
     <button ion-button color="default">Start</button>
     <button ion-button color="dark">Stop</button>
   </div>
