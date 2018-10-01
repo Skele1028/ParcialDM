@@ -19,8 +19,7 @@ export class HomePage {
 
   }
 
-starScanning() {
-
+  starScanning() {
     this.pairedDevices = null;
     this.unpairedDevices = null;
     this.gettingDevices = true;
@@ -28,7 +27,7 @@ starScanning() {
       this.unpairedDevices = success;
       this.gettingDevices = false;
       success.forEach(element => {
-        // alert(element.name);
+        //alert(element.name);
       });
     },
       (err) => {
@@ -67,7 +66,6 @@ starScanning() {
       ]
     });
     alert.present();
-
   }
 
   disconnect() {
