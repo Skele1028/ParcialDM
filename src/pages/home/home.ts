@@ -27,7 +27,6 @@ export class HomePage {
   clase32 = 'light';
   clase42 = 'light';
 
-  cordenada = '';
   unpairedDevices: any;
   pairedDevices: any;
   gettingDevices: Boolean;
@@ -109,6 +108,30 @@ export class HomePage {
     alert.present();
   }
 
+  btCalibrar() {
+    let alert = this.alertCtrl.create({
+      title: 'Calibrar',
+      message: 'Quiere calibrar la maquina',
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancelar',
+          handler: () => {
+            console.log('Cancel clicked');
+          }
+        },
+        {
+          text: 'Calibrar',
+          handler: () => {
+            this.bluetoothSerial.write('Calibrar');
+            console.log('calibrando...');
+          }
+        }
+      ]
+    });
+    alert.present();
+  }
+
   btCoordenada($valor) {
     this.bluetoothSerial.write($valor);
     console.log($valor);
@@ -160,10 +183,7 @@ export class HomePage {
         this.clase42 = 'secondary';
         break;
     }
-
-
-
-   
+    
   }
 
 }
