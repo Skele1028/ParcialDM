@@ -92,13 +92,9 @@ export class HomePage {
     alert.present();
   }
 
-  btCeroCero() {
+  btCoordenada($valor) {
     this.bluetoothSerial.write('00');
-    console.log('00'); 
+    console.log($valor); 
   }
 
-  btUnoCero() {
-    this.bluetoothSerial.write('10');
-    console.log('10');
-  }   
 }
