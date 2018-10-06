@@ -1,7 +1,7 @@
-int final1 = A0;
-int final2 = A1;
-int final3 = A2;
-int final4 = A3;
+int final1 = A0; // Maquina 2
+int final2 = A1; // Maquina 4
+int final3 = A2; // Maquina 3
+int final4 = A3; // Maquina 1
 
 void setup() {
   Serial.begin(9600);
@@ -13,7 +13,7 @@ void setup() {
   digitalWrite(6, HIGH);
   digitalWrite(7, HIGH);
 }
-
+  
 void loop() {
 
   digitalWrite(11, HIGH);

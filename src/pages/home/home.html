@@ -46,12 +46,6 @@
   <div align="center">
     <ion-list padding>
       <button ion-button block (click)="starScanning()">Buscar</button>
-      <ion-list-header>
-        Dispositivos emparejados
-      </ion-list-header>
-      <ion-item *ngFor="let device of pairedDevices">
-        {{device.name}}
-      </ion-item>
       <button ion-button block (click)="disconnect()">Desconectar</button>
       <ion-list-header>
         Dispositivos Disponibles

@@ -33,7 +33,6 @@ export class HomePage {
 
   constructor(private bluetoothSerial: BluetoothSerial, private alertCtrl: AlertController) {
     bluetoothSerial.enable();
-
   }
 
   starScanning() {
@@ -183,7 +182,7 @@ export class HomePage {
         this.clase42 = 'secondary';
         break;
     }
-    
+
   }
 
 }

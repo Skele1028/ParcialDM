@@ -2,8 +2,8 @@
 SoftwareSerial BT(4, 5);   // Definimos los pines RX y TX del Arduino conectados al Bluetooth
 
 bool calibration;
-int enable1 = 6;
-int enable2 = 7;
+int enable1 = 6; //Entrada de velocidad
+int enable2 = 7; //Entrada de velocidad
 
 int motor1I = 11; //Motor Horizontal Izquierda
 int motor1D = 10; //Motor Horizontal Derecha
@@ -15,11 +15,14 @@ int final2 = A1; //Der
 int final3 = A2; //Up
 int final4 = A3; //Down
 
+int panicB = A4; //Entrada del boton
+
 //Valores normales para lectura maxima
-int valorFinal1 = 30540; //Izq
-int valorFinal2 = 30540; //Der
-int valorFinal3 = 30540; //Up
-int valorFinal4 = 30540; //Down
+int maximoFinal1 = 30540; //Izq
+int maximoFinal2 = 30540; //Der
+int maximoFinal3 = 30540; //Up
+int maximoFinal4 = 30540; //Down
+int maximoPanic = 30540; //Down
 
 int fragmentoX;
 int fragmentoY;
@@ -32,6 +35,8 @@ int y;
 
 int nX;
 int nY;
+
+bool panic;
 
 void setup() {
   BT.begin(9600);       // Inicializamos el puerto serie BT que hemos creado
@@ -61,9 +66,11 @@ void setup() {
   fragmentoX = tx / 4;
   fragmentoY = ty / 2;
 
+  panic = false;
+
   Serial.println("Iniciando Calibración");
 
-  calibration = calibrationMotor();
+  //calibration = calibrationMotor();
 
   Serial.println("Todo listo");
 }
@@ -81,7 +88,7 @@ bool calibrationMotor() {
 
   //Llevamos los carros hasta el final
   int valor = 0;
-  while (valor < valorFinal2) {
+  while (valor < maximoFinal2) {
     valor = 0;
     for (int i = 0; i < 30; i++) {
       valor += analogRead(final2);
@@ -93,7 +100,7 @@ bool calibrationMotor() {
   digitalWrite(motor1D, LOW);
 
   valor = 0;
-  while (valor < valorFinal4) {
+  while (valor < maximoFinal4) {
     valor = 0;
     for (int i = 0; i < 30; i++) {
       valor += analogRead(final4);
@@ -107,7 +114,7 @@ bool calibrationMotor() {
   //Leemos finales 1
   int temp = millis();
   valor = 0;
-  while (valor < valorFinal1) {
+  while (valor < maximoFinal1) {
     valor = 0;
     for (int i = 0; i < 30; i++) {
       valor += analogRead(final1);
@@ -123,7 +130,7 @@ bool calibrationMotor() {
   //Leemos finales 2
   temp = millis();
   valor = 0;
-  while (valor < valorFinal3) {
+  while (valor < maximoFinal3) {
     valor = 0;
     for (int i = 0; i < 30; i++) {
       valor += analogRead(final3);
@@ -142,7 +149,7 @@ bool calibrationMotor() {
   Serial.println(ty);
 
   //Verificamos calculos:
-  if (tx > ty) {
+  if (tx != 0 && ty != 0) {
     Serial.println("Calibración terminada");
     return true;
   }
@@ -157,12 +164,12 @@ String readBluetooth() {
     Serial.println("Lectura realizada");
     String coordenada = BT.readString();
 
-    // Leemos longitud
+    // Mostramos entrada
     Serial.print("Entrada - ");
     Serial.println(coordenada);
 
-    if (coordenada == "calibrar") {
-      //Calubración del sistema
+    if (coordenada == "Calibrar") {
+      //Calibración del sistema
       calibrationUser();
       return  "";
     }
@@ -193,16 +200,17 @@ String readBluetooth() {
     //Imprimimos posiciones finales
     Serial.println("El valor de: " + nX);
     Serial.println("El valor de: " + nY);
-  }
 
-  //Retornamos el valor del Bluetooth
-  return "Hecho";
+    //Retornamos el valor del Bluetooth
+    return "Hecho";
+  }
 }
 
 void writeBluetooth(int str) {
   BT.write(str);
 }
 
+// Mover motor
 void moveMotors() {
   if (calibration) {
     // Verificamos valores antes de mover
@@ -247,6 +255,8 @@ void motorX(bool direction, int time) {
   x = nX;
 }
 
+//True derecha - Abajo
+//False izquierda - Arriba
 void motorY(bool direction, int time) {
   int start = millis();
   int now = 0;
@@ -271,6 +281,24 @@ void calibrationUser() {
   calibration = calibrationMotor();
 }
 
+void panicBoton() {
+  int valor = 0;
+  for (int i = 0; i < 30; i++) {
+    valor += analogRead(panicB);
+  }
+
+  if(valor >= maximoPanic ){
+    panic = true;
+    Serial.println("PANICOOOOO");
+  }
+}
+
 void loop() {
-  readBluetooth();  
+  panicBoton();
+  
+  if (panic) {
+    return;
+  }
+
+  readBluetooth();
 }
