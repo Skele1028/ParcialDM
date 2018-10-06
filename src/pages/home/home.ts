@@ -1,8 +1,6 @@
 import { Component } from '@angular/core';
-import { NavController, Button } from 'ionic-angular';
 import { BluetoothSerial } from '@ionic-native/bluetooth-serial';
 import { AlertController } from 'ionic-angular';
-import { ClassStmt } from '@angular/compiler';
 
 @Component({
   selector: 'page-home',
@@ -30,9 +28,11 @@ export class HomePage {
   unpairedDevices: any;
   pairedDevices: any;
   gettingDevices: Boolean;
+  calibracion;
 
   constructor(private bluetoothSerial: BluetoothSerial, private alertCtrl: AlertController) {
     bluetoothSerial.enable();
+    this.calibracion = "";
   }
 
   starScanning() {
@@ -61,7 +61,6 @@ export class HomePage {
   fail = (error) => alert(error);
 
   selectDevice(address: any) {
-
     let alert = this.alertCtrl.create({
       title: 'Connectar',
       message: 'Quiere conectarse con?',
@@ -122,7 +121,57 @@ export class HomePage {
         {
           text: 'Calibrar',
           handler: () => {
-            this.bluetoothSerial.write('Calibrar');
+            this.bluetoothSerial.write('CC');
+            console.log('calibrando...');
+          }
+        }
+      ]
+    });
+    alert.present();
+
+    this.calibracion = this.bluetoothSerial.read(); 
+  }
+
+  btStart() {
+    let alert = this.alertCtrl.create({
+      title: 'Iniciar',
+      message: 'Quiere iniciar de nuevo la maquina?',
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancelar',
+          handler: () => {
+            console.log('Cancel clicked');
+          }
+        },
+        {
+          text: 'Start',
+          handler: () => {
+            this.bluetoothSerial.write('SS');
+            console.log('iniciando...');
+          }
+        }
+      ]
+    });
+    alert.present();
+  }
+
+  btStop() {
+    let alert = this.alertCtrl.create({
+      title: 'Detener',
+      message: 'Quiere detener la maquina',
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancelar',
+          handler: () => {
+            console.log('Cancel clicked');
+          }
+        },
+        {
+          text: 'Detener',
+          handler: () => {
+            this.bluetoothSerial.write('DD');
             console.log('calibrando...');
           }
         }
@@ -134,7 +183,19 @@ export class HomePage {
   btCoordenada($valor) {
     this.bluetoothSerial.write($valor);
     console.log($valor);
+  }
 
+  startListener(){
+    this.bluetoothSerial.subscribe('\n').subscribe((data) => {
+      console.log('Receiving data to bluetooth');
+      console.log('data: ' + data);
+      //
+    }, (error) => {
+      console.log('Error to read data');
+    });
+  }
+
+  changeColorButon($valor){
     switch ($valor) {
       case '00':
         this.clase00 = 'secondary';
@@ -182,7 +243,5 @@ export class HomePage {
         this.clase42 = 'secondary';
         break;
     }
-
   }
-
 }
