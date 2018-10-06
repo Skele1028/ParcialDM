@@ -1,35 +1,33 @@
 #include <SoftwareSerial.h>   // Incluimos la librería  SoftwareSerial  
-SoftwareSerial BT(2, 3);   // Definimos los pines RX y TX del Arduino conectados al Bluetooth
+SoftwareSerial BT(12, 13);   // Definimos los pines TX y RX del Arduino conectados al Bluetooth
 
 void setup() {
   BT.begin(9600);       // Inicializamos el puerto serie BT que hemos creado
   Serial.begin(9600);   // Inicializamos  el puerto serie
 }
-  
+
 void loop() {
   readBluetooth();
-  writeBluetooth(1);
 }
 
-String readBluetooth() {
-  // Si llega un dato por el puerto BT se envía al monitor serial
-  Serial.println(BT.available());
+void readBluetooth() {
   if (BT.available()) {
+    String str = "";
+    while (BT.available())  // Si llega un dato por el puerto BT se envía al monitor serial
+    {
+      str += BT.read();
+    }
     Serial.println("Lectura realizada");
-    String coordenada = BT.readString();
+    Serial.println(str);
 
-    // Leemos longitud
-    Serial.print("Entrada - ");
-    Serial.println(coordenada);
-
-    if (coordenada == "Calibrar") {
+    if (str == "6565") {
       //Calibración del sistema
       //calibrationUser();
       Serial.println("Calibración del sistema");
       return  "";
     }
 
-    int longitud = coordenada.length() + 1 ;
+    int longitud = str.length() + 1 ;
 
     // Mostramos longitud
     Serial.print("Longitud - ");
@@ -37,29 +35,20 @@ String readBluetooth() {
 
     //Creamos arreglo y pasamos caracteres
     char cadCoor[longitud];
-    coordenada.toCharArray(cadCoor, longitud);
+    str.toCharArray(cadCoor, longitud);
 
     //Asignación de valores
-    //nX = atol(cadCoor[0]);
-    //nY = atol(cadCoor[1]);
-    Serial.println(atol(cadCoor[0]));
-    Serial.println(atol(cadCoor[1]));
+    int nX = ((cadCoor[0] - '0') * 10) + (cadCoor[1] - '0') - 48;
+    int nY = ((cadCoor[2] - '0') * 10) + (cadCoor[3] - '0') - 48;
 
     //Verificamos coor
-    Serial.println("Coordeada num - ");
-    Serial.print(coordenada);
-
-    //Mostrar Arreglo
-    for (int i = 0; i < longitud; i++) {
-      Serial.println(cadCoor[i]);
-    }
-
-    //Imprimimos posiciones finales
-    //Serial.println("El valor de: " + nX);
-    //Serial.println("El valor de: " + nY);
+    Serial.print("Coordeada: ");
+    Serial.print(nX);
+    Serial.print(",");
+    Serial.println(nY);
 
     //Retornamos el valor del Bluetooth
-    return "Hecho";
+    return "Hecho";    
   }
 }
 

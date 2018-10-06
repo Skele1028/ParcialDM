@@ -1,5 +1,5 @@
 #include <SoftwareSerial.h>   // Incluimos la librería  SoftwareSerial  
-SoftwareSerial BT(4, 5);   // Definimos los pines RX y TX del Arduino conectados al Bluetooth
+SoftwareSerial BT(12, 13);   // Definimos los pines TX y RX del Arduino conectados al Bluetooth
 
 bool calibration;
 int enable1 = 6; //Entrada de velocidad
@@ -63,16 +63,9 @@ void setup() {
   x = 0;
   y = 0;
 
-  fragmentoX = tx / 4;
-  fragmentoY = ty / 2;
-
   panic = false;
 
-  Serial.println("Iniciando Calibración");
-
-  //calibration = calibrationMotor();
-
-  Serial.println("Todo listo");
+  Serial.println("Maquina iniciada");
 }
 
 bool calibrationMotor() {
@@ -151,6 +144,15 @@ bool calibrationMotor() {
   //Verificamos calculos:
   if (tx != 0 && ty != 0) {
     Serial.println("Calibración terminada");
+    x = 0;
+    y = 0;
+    fragmentoX = tx / 4;
+    fragmentoY = ty / 2;
+    Serial.print("Fragmento X - ");
+    Serial.println(fragmentoX);
+    Serial.print("Fragmento Y - ");
+    Serial.println(fragmentoY);
+    writeBluetooth(82);
     return true;
   }
 
@@ -159,22 +161,37 @@ bool calibrationMotor() {
 }
 
 String readBluetooth() {
-  // Si llega un dato por el puerto BT se envía al monitor serial
   if (BT.available()) {
+    String str = "";
+    while (BT.available())  // Si llega un dato por el puerto BT se envía al monitor serial
+    {
+      str += BT.read();
+    }
     Serial.println("Lectura realizada");
-    String coordenada = BT.readString();
+    Serial.println(str);
 
-    // Mostramos entrada
-    Serial.print("Entrada - ");
-    Serial.println(coordenada);
-
-    if (coordenada == "Calibrar") {
+    if (str == "6767") {
       //Calibración del sistema
+      Serial.println("Calibración del sistema");
       calibrationUser();
       return  "";
     }
 
-    int longitud = coordenada.length() + 1 ;
+    if (str == "8383") {
+      //Calibración del sistema
+      Serial.println("Iniciando");
+      panic = false;
+      return  "";
+    }
+
+    if (str == "6868") {
+      //Calibración del sistema
+      Serial.println("Deteniendo");
+      panic = true;
+      return  "";
+    }
+
+    int longitud = str.length() + 1 ;
 
     // Mostramos longitud
     Serial.print("Longitud - ");
@@ -182,28 +199,23 @@ String readBluetooth() {
 
     //Creamos arreglo y pasamos caracteres
     char cadCoor[longitud];
-    coordenada.toCharArray(cadCoor, longitud);
+    str.toCharArray(cadCoor, longitud);
 
     //Asignación de valores
-    nX = atol(cadCoor[0]);
-    nY = atol(cadCoor[1]);
+    nX = ((cadCoor[0] - '0') * 10) + (cadCoor[1] - '0') - 48;
+    nY = ((cadCoor[2] - '0') * 10) + (cadCoor[3] - '0') - 48;
 
     //Verificamos coor
-    Serial.println("Coordeada num - ");
-    Serial.print(coordenada);
-
-    //Mostrar Arreglo
-    for (int i = 0; i < longitud; i++) {
-      Serial.println(cadCoor[i]);
-    }
-
-    //Imprimimos posiciones finales
-    Serial.println("El valor de: " + nX);
-    Serial.println("El valor de: " + nY);
+    Serial.print("Coordeada: ");
+    Serial.print(nX);
+    Serial.print(",");
+    Serial.println(nY);
 
     //Retornamos el valor del Bluetooth
     return "Hecho";
   }
+
+  return "";
 }
 
 void writeBluetooth(int str) {
@@ -214,38 +226,57 @@ void writeBluetooth(int str) {
 void moveMotors() {
   if (calibration) {
     // Verificamos valores antes de mover
-    if (nX < 5 && nY < 3) {
+    Serial.println("Coordenadas: ");
+    Serial.print("x = ");
+    Serial.println(x);
+    Serial.print("y = ");
+    Serial.println(y);
+    Serial.print("nX = ");
+    Serial.println(nX);
+    Serial.print("nY = ");
+    Serial.println(nY);
+
+    if (nX < 5 && nX >= 0  && nY < 3 && nY >= 0 ) {
       // Calculamos el tipo de momiviento del motor
       if (nX < x) {
-        motorX(false, (fragmentoX * x) - (fragmentoX - nX));
+        Serial.println("Moviendo motor hacia Izq");
+        motorX(true, (fragmentoX * x) - (fragmentoX * nX));
       } else {
-        motorX(false, (fragmentoX * nX) - (fragmentoX - x));
+        Serial.println("Moviendo motor hacia Der");
+        motorX(false, (fragmentoX * nX) - (fragmentoX * x));
       }
 
       //Calculamos el tipo de movimiento del motor
       if (nY < y) {
-        Serial.println();
-        motorY(false, (fragmentoY * y) - (fragmentoY - nY));
+        Serial.println("Moviendo motor hacia Arriba");
+        motorY(false, (fragmentoY * y) - (fragmentoY * nY));
       } else {
-        Serial.println();
-        motorY(true, (fragmentoY * nY) - (fragmentoY - y));
+        Serial.println("Moviendo motor hacia Abajo");
+        motorY(true, (fragmentoY * nY) - (fragmentoY * y));
       }
     }
   }
 }
 
-//True derecha - Abajo
-//False izquierda - Arriba
+//True Izquierda
+//False Derecha
 void motorX(bool direction, int time) {
+  Serial.print("Moviendo moto H ");
+  Serial.print(time);
+  Serial.println("mS");
+
   int start = millis();
-  int now = 0;
+  int now = millis();
   if (direction) {
+    Serial.println("Moviendo moto a la izquierda...");
+    Serial.println(now - start);
     while (now - start < time) {
       digitalWrite(motor1I, HIGH);
       now = millis();
     }
     digitalWrite(motor1I, LOW);
   } else {
+    Serial.println("Moviendo...");
     while (now - start < time) {
       digitalWrite(motor1D, HIGH);
       now = millis();
@@ -255,18 +286,24 @@ void motorX(bool direction, int time) {
   x = nX;
 }
 
-//True derecha - Abajo
-//False izquierda - Arriba
+//True Abajo
+//False Arriba
 void motorY(bool direction, int time) {
+  Serial.print("Moviendo moto V ");
+  Serial.print(time);
+  Serial.println("mS");
+
   int start = millis();
-  int now = 0;
+  int now = millis();
   if (direction) {
+    Serial.println("Moviendo moto a la abajo...");
     while (now - start < time) {
       digitalWrite(motor2D, HIGH);
       now = millis();
     }
     digitalWrite(motor2D, LOW);
   } else {
+    Serial.println("Moviendo moto a la arriba...");
     while (now - start < time) {
       digitalWrite(motor2U, HIGH);
       now = millis();
@@ -278,7 +315,11 @@ void motorY(bool direction, int time) {
 
 void calibrationUser() {
   Serial.println("Calibración solicitada por el usuario");
+  Serial.println("Iniciando Calibración");
+
   calibration = calibrationMotor();
+
+  Serial.println("Todo listo");
 }
 
 void panicBoton() {
@@ -287,7 +328,7 @@ void panicBoton() {
     valor += analogRead(panicB);
   }
 
-  if(valor >= maximoPanic ){
+  if (valor >= maximoPanic ) {
     panic = true;
     Serial.println("PANICOOOOO");
   }
@@ -295,10 +336,15 @@ void panicBoton() {
 
 void loop() {
   panicBoton();
-  
+
+  String str = readBluetooth();
+
   if (panic) {
     return;
   }
 
-  readBluetooth();
+  if (str == "Hecho") {
+    Serial.println("Moviendo motores");
+    moveMotors();
+  }
 }
